@@ -1,0 +1,32 @@
+#include <IRremote.h>   // 적외선 함수 라이브러리 선언
+int RECV_PIN = A0;    // 적외선 센서 신호를 아날로그핀 A0로 송수신 함
+int led_red = 8;  // LED red를 D8로 선언
+int led_blue = 9;  // LED blue를 D9로 선언
+int swich = 7;    // 릴레이 입력을 D7로 선언
+
+IRrecv irrecv(RECV_PIN);  //  IRremote를 사용하기 위해 irrecv객체 생성
+decode_results results;   // 디코드한 결과 값
+
+void setup()
+{
+ Serial.begin(9600);
+  irrecv.enableIRIn();  // Start the receiver
+  pinMode(led_red, OUTPUT);  // LED red
+  pinMode(led_blue, OUTPUT);  // LED blue
+  pinMode(swich, OUTPUT); // swich_on/off
+  }
+
+  void loop(){
+  if(irrecv.decode(&results)){  // 적외선 리모컨의 신호를 받을 때
+  Serial.println(results.value, HEX);  // 결과값을 HEX로 출력
+  switch (results.value){
+      case 0x80c: digitalWrite(8, HIGH); break; //전원버튼이 눌리면 LED_red ON
+      case 0xc: digitalWrite(8, LOW); break; //전원버튼이 다시 눌리면 LED_red OFF
+      case 0x80b: digitalWrite(9, HIGH); break; //AV/TV 버튼이 눌리면 LED_blue ON
+      case 0xb: digitalWrite(9, LOW); break; //AV/TV버튼이 눌리면 LED_blue OFF
+      case 0x80d: digitalWrite(7, HIGH); break; // CH_up버튼이 눌리면 swich ON
+      case 0xd: digitalWrite(7, LOW); break;  // CH_down버튼이 눌리면 swich OFF    
+        }
+       irrecv.resume();  // 수광 다이오드 다음 값 받기
+}
+}
